@@ -38,7 +38,7 @@ jobs:
         python-version: '3.10'
     - run: |
         python --version
-        pip install cocotb==1.8.1
+        python -m pip install cocotb==1.8.1
         cocotb-config --versioin
         pip install pytest==8.1.1
 

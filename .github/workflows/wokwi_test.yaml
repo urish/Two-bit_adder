@@ -39,7 +39,6 @@ jobs:
     - run: |
         python --version
         python -m pip install cocotb==1.8.1
-        cocotb-config --versioin
         pip install pytest==8.1.1
 
     - name: Verify Environment

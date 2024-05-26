@@ -19,10 +19,8 @@ jobs:
           python-override: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
     - run: | 
-        yosys --version
-        iverilog -V
-        cocotb-config --libpython
-        cocotb-config --python-bin
+       apt-get install -y iverilog
+       
 
     - name: checkout tt tools repo
       uses: actions/checkout@v3

@@ -1,83 +1,67 @@
 name: wokwi_test
-# either manually started, or on a schedule
-on: [ push, workflow_dispatch ]
+on: [push, workflow_dispatch]
 jobs:
   wokwi_test:
-    # ubuntu
     runs-on: ubuntu-latest
     steps:
-    # need the repo checked out
-    - name: checkout repo
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-    # install oss fpga tools
-    - name: install oss-cad-suite
-      uses: YosysHQ/setup-oss-cad-suite@v2
-      with:
+      - name: Install OSS CAD Suite
+        uses: YosysHQ/setup-oss-cad-suite@v2
+        with:
           python-override: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-    - run: | 
-       sudo apt-get install -y iverilog
-       
+      - run: sudo apt-get install -y iverilog
 
-    - name: checkout tt tools repo
-      uses: actions/checkout@v3
-      with:
-        repository: tinytapeout/tt-support-tools
-        path: tt
-        ref: tt07
+      - name: Checkout tt tools repo
+        uses: actions/checkout@v3
+        with:
+          repository: tinytapeout/tt-support-tools
+          path: tt
+          ref: tt07
 
-    # need python and requirements
-    - name: setup python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - run: |
-        python --version
-        python -m pip install cocotb==1.8.1
-        python -m pip install pytest==8.1.1
-        python -m pip install -r tt/requirements.txt 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: |
+          python --version
+          python -m pip install cocotb==1.8.1
+          python -m pip install pytest==8.1.1
+          python -m pip install -r tt/requirements.txt 
 
-    - name: Cache Python packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-            ${{ runner.os }}-pip-
+      - name: Verify Environment
+        run: |
+          which python
+          python --version
+          pip list
 
-    - name: Verify Environment
-      run: |
-        which python
-        python --version
-        pip list
-        
-    # fetch the truth table
-    - name: fetch Verilog and build config
-      run: ./tt/tt_tool.py --create-user-config
+      - name: Fetch Verilog and Build Config
+        run: ./tt/tt_tool.py --create-user-config
 
-    # does the wokwi project have a truthtable?
-    - name: Check the truthtable exists
-      id: check_files
-      uses: andstor/file-existence-action@v2
-      with:
-        files: "src/truthtable.md"
+      - name: Check the Truthtable Exists
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "src/truthtable.md"
 
-    - name: test
-      if: steps.check_files.outputs.files_exists == 'true'
-      run: |
-        cd src
-        unset PYTHONHOME
-        make clean
-        make
-        # make will return success even if the test fails, so check for failure in the results.xml
-        ! grep failure results.xml
+      - name: Test
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          cd src
+          unset PYTHONHOME
+          echo "PYTHONPATH: $PYTHONPATH"
+          make clean
+          make
+          ! grep failure results.xml
 
-    - name: upload vcd
-      if: success() || failure()
-      uses: actions/upload-artifact@v3
-      with:
+      - name: Upload VCD
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
           name: test-vcd
           path: src/*.vcd
+

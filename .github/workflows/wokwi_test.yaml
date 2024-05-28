@@ -19,7 +19,7 @@ jobs:
           python-override: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
     - run: | 
-       apt-get install -y iverilog
+       sudo apt-get install -y iverilog
        
 
     - name: checkout tt tools repo

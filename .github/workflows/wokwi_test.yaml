@@ -40,6 +40,14 @@ jobs:
         python -m pip install pytest==8.1.1
         python -m pip install -r tt/requirements.txt 
 
+    - name: Cache Python packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+            ${{ runner.os }}-pip-
+
     - name: Verify Environment
       run: |
         which python

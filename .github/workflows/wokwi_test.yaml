@@ -27,7 +27,7 @@ jobs:
 
       - name: Install iverilog
         run: |
-          apt-get install iverilog
+          sudo apt-get install -y iverilog
 
       - name: Fetch Verilog and Build Config
         run: ./tt/tt_tool.py --create-user-config

@@ -25,11 +25,9 @@ jobs:
           python -m pip install -r test/requirements.txt 
           python -m pip install -r tt/requirements.txt 
 
-      - name: Verify Environment
+      - name: Install iverilog
         run: |
-          which python
-          python --version
-          pip list
+          apt-get install iverilog
 
       - name: Fetch Verilog and Build Config
         run: ./tt/tt_tool.py --create-user-config
